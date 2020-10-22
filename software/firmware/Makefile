@@ -10,7 +10,7 @@ CFLAGS+=--specs=nano.specs -Wl,-Bstatic,-T,../template.lds,-Map,firmware.map,--s
 
 #local sources
 HDR+=$(SW_DIR)/periphs.h
-SRC+= firmware.S firmware.c
+SRC+= firmware.S
 
 run: firmware.elf
 
