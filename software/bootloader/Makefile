@@ -18,7 +18,7 @@ endif
 include $(UART_DIR)/software/embedded/embedded.mk
 
 #interconnect
-include $(INTERCON_DIR)/software/software.mk
+#include $(INTERCON_DIR)/software/software.mk
 
 
 #SOURCES
