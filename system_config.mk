@@ -10,10 +10,10 @@
 
 
 #FIRMWARE SIZE (LOG2)
-FIRM_ADDR_W ?=14
+FIRM_ADDR_W ?=20
 
 #SRAM SIZE (LOG2)
-SRAM_ADDR_W ?=14
+SRAM_ADDR_W ?=20
 
 #DDR 
 USE_DDR ?=0
@@ -32,7 +32,7 @@ INIT_MEM ?=1
 #must match respective submodule or folder name in the submodules directory
 #and CORE_NAME in the core.mk file of the submodule
 #PERIPHERALS:=UART
-PERIPHERALS ?=UART
+PERIPHERALS ?=UART TIMER KNN
 
 #
 #SIMULATION
