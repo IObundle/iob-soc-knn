@@ -60,6 +60,7 @@ else
 	ssh $(FPGA_USER)@$(FPGA_SERVER) 'cd $(REMOTE_ROOT_DIR); make -C $(BOARD_DIR) compile INIT_MEM=$(INIT_MEM) USE_DDR=$(USE_DDR) RUN_DDR=$(RUN_DDR) BAUD=$(HW_BAUD)'
 ifneq ($(FPGA_SERVER),localhost)
 	scp $(FPGA_USER)@$(FPGA_SERVER):$(REMOTE_ROOT_DIR)/$(BOARD_DIR)/$(FPGA_OBJ) $(BOARD_DIR)
+	scp $(FPGA_USER)@$(FPGA_SERVER):$(REMOTE_ROOT_DIR)/$(BOARD_DIR)/$(FPGA_LOG) $(BOARD_DIR)
 endif
 endif
 
@@ -95,9 +96,9 @@ board-run: firmware
 ifeq ($(BOARD),$(filter $(BOARD), $(LOCAL_BOARD_LIST)))
 	make -C $(CONSOLE_DIR) run TEST_LOG=$(TEST_LOG) BAUD=$(HW_BAUD)
 else
-	ssh $(BOARD_SERVER) 'if [ ! -d $(REMOTE_ROOT_DIR) ]; then mkdir -p $(REMOTE_ROOT_DIR); fi'
-	rsync -avz --exclude .git $(ROOT_DIR) $(BOARD_SERVER):$(REMOTE_ROOT_DIR) 
-	ssh $(BOARD_SERVER) 'cd $(REMOTE_ROOT_DIR); make -C $(CONSOLE_DIR) run INIT_MEM=$(INIT_MEM) TEST_LOG=$(TEST_LOG) BAUD=$(HW_BAUD)'
+	ssh $(BOARD_USER)@$(BOARD_SERVER) 'if [ ! -d $(REMOTE_ROOT_DIR) ]; then mkdir -p $(REMOTE_ROOT_DIR); fi'
+	rsync -avz --exclude .git $(ROOT_DIR) $(BOARD_SERVER):$(REMOTE_ROOT_DIR)
+	ssh $(BOARD_USER)@$(BOARD_SERVER) 'cd $(REMOTE_ROOT_DIR); make -C $(CONSOLE_DIR) run INIT_MEM=$(INIT_MEM) TEST_LOG=$(TEST_LOG) BAUD=$(HW_BAUD)  BOARD=$(BOARD)'
 ifneq ($(TEST_LOG),)
 	scp $(BOARD_SERVER):$(REMOTE_ROOT_DIR)/$(CONSOLE_DIR)/test.log $(CONSOLE_DIR)/test.log
 endif
@@ -108,7 +109,7 @@ ifeq ($(BOARD),$(filter $(BOARD), $(LOCAL_BOARD_LIST)))
 	make -C $(BOARD_DIR) clean
 else
 	rsync -avz --exclude .git $(ROOT_DIR) $(BOARD_SERVER):$(REMOTE_ROOT_DIR)
-	ssh $(BOARD_SERVER) 'if [ -d $(REMOTE_ROOT_DIR) ]; then cd $(REMOTE_ROOT_DIR); make -C $(BOARD_DIR) clean; fi'
+	ssh $(BOARD_USER)@$(BOARD_SERVER) 'if [ -d $(REMOTE_ROOT_DIR) ]; then cd $(REMOTE_ROOT_DIR); make -C $(BOARD_DIR) clean; fi'
 endif
 
 #
@@ -140,13 +141,14 @@ sw-clean: firmware-clean bootloader-clean console-clean
 #
 
 doc: system.mk
-	make -C $(DOC_DIR) run
+	make -C document/$(DOC_TYPE) $(DOC_TYPE).pdf
 
 doc-clean: system.mk
-	make -C $(DOC_DIR) clean
+	make -C document/$(DOC_TYPE) clean
 
 doc-pdfclean: system.mk
-	make -C $(DOC_DIR) pdfclean
+	make -C document/$(DOC_TYPE) pdfclean
+
 
 #
 # TEST ON SIMULATORS AND BOARDS
@@ -219,7 +221,7 @@ clean-all: sim-clean fpga-clean board-clean doc-clean
 	board-load board-run board-clean\
 	firmware firmware-clean bootloader bootloader-clean sw-clean \
 	console console-clean \
-	doc doc-clean \
+	doc doc-clean doc-pdfclean\
 	test test-all-simulators test-simulator test-all-boards test-board test-board-config \
 	asic asic-clean \
 	all clean-all
