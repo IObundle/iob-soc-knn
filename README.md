@@ -8,7 +8,7 @@ memory controller IP (not provided) using an AXI4 master bus.
 
 ## Clone the repository
 
-``git clone --recursive git@github.com:IObundle/iob-soc.git``
+``git clone --recursive git@github.com:IObundle/iob-soc-knn.git``
 
 Access to Github by *ssh* is mandatory so that submodules can be updated.
 
