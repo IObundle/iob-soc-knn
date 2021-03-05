@@ -5,8 +5,6 @@ include ../software.mk
 CFLAGS+=--specs=nano.specs -Wl,-Bstatic,-T,../template.lds,-Map,firmware.map,--strip-debug
 
 
-DEFINE+=-DLONGLONG
-
 #SUBMODULES
 
 #cache
@@ -21,7 +19,7 @@ $(foreach p, $(PERIPHERALS), $(eval include $(SUBMODULES_DIR)/$p/software/embedd
 HDR+=periphs.h
 
 #SOURCES
-SRC+= firmware.S
+SRC+= firmware.S $(UART_DIR)/software/printf.c
 
 #RULES
 run: firmware.elf

@@ -228,10 +228,6 @@ make clean-all
 
 ```
 git clone https://github.com/riscv/riscv-gnu-toolchain
-cd riscv-gnu-toolchain
-git submodule update --init --recursive
-git checkout <stable tag>
-git submodule update --init --recursive
 ```
 
 ### Prerequisites
@@ -259,8 +255,14 @@ sudo yum install autoconf automake python3 python2 libmpc-devel mpfr-devel gmp-d
 ### Installation
 
 ```
-sudo ./configure --prefix=/path/to/riscv --enable-multilib
-sudo make
+cd riscv-gnu-toolchain
+./configure --prefix=/path/to/riscv --enable-multilib
+sudo make -j$(nproc)
+```
+
+This will take a while... After it is done do:
+
+```
 export PATH=$PATH:/path/to/riscv/bin
 ```
-The *export PATH* command should be added to the bottom of your ~/.bashrc, so that you do not have to type it for every session.
+The above command should be added to the bottom of your ~/.bashrc file, so that you do not have to type it every session.

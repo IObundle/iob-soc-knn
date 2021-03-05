@@ -19,7 +19,7 @@ module boot_ctr
 
    //sram master write interface
    output reg                 sram_valid,
-   output reg [`ADDR_W-1:0]   sram_addr,
+   output [`ADDR_W-1:0]       sram_addr,
    output [`DATA_W-1:0]       sram_wdata,
    output reg [`DATA_W/8-1:0] sram_wstrb
    );
@@ -55,7 +55,7 @@ module boot_ctr
    //
    reg                        rom_r_valid;
    reg [`BOOTROM_ADDR_W-3: 0] rom_r_addr;
-   reg [`DATA_W-1: 0]         rom_r_rdata;
+   wire [`DATA_W-1: 0]        rom_r_rdata;
    
    //read rom
    wire                       reboot_rst = rst | cpu_rst_req;
