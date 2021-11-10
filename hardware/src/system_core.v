@@ -33,7 +33,7 @@ module system
    input                    m_axi_wready,
 
    //write response
-   //input [0:0]              m_axi_bid,
+   input [0:0]              m_axi_bid,
    input [1:0]              m_axi_bresp,
    input                    m_axi_bvalid,
    output                   m_axi_bready,
@@ -52,7 +52,7 @@ module system
    input                    m_axi_arready,
 
    //read
-   //input [0:0]              m_axi_rid,
+   input [0:0]              m_axi_rid,
    input [`DATA_W-1:0]      m_axi_rdata,
    input [1:0]              m_axi_rresp,
    input                    m_axi_rlast, 
@@ -113,14 +113,14 @@ module system
    wire [`REQ_W-1:0]         int_mem_i_req;
    wire [`RESP_W-1:0]        int_mem_i_resp;
    //external memory instruction bus
-`ifdef RUN_DDR_USE_SRAM
+`ifdef RUN_EXTMEM_USE_SRAM
    wire [`REQ_W-1:0]         ext_mem_i_req;
    wire [`RESP_W-1:0]        ext_mem_i_resp;
 `endif
 
    // INSTRUCTION BUS
    split #(
-`ifdef RUN_DDR_USE_SRAM
+`ifdef RUN_EXTMEM_USE_SRAM
            .N_SLAVES(2),
 `else
            .N_SLAVES(1),
@@ -136,7 +136,7 @@ module system
       .m_resp ( cpu_i_resp                       ),
       
       // slaves interface
-`ifdef RUN_DDR_USE_SRAM
+`ifdef RUN_EXTMEM_USE_SRAM
       .s_req  ( {ext_mem_i_req, int_mem_i_req}   ),
       .s_resp ( {ext_mem_i_resp, int_mem_i_resp} )
 `else
@@ -247,7 +247,7 @@ module system
       .clk                  (clk),
       .rst                  (cpu_reset),
       
- `ifdef RUN_DDR_USE_SRAM
+ `ifdef RUN_EXTMEM_USE_SRAM
       // instruction bus
       .i_req                ({ext_mem_i_req[`valid(0)], ext_mem_i_req[`address(0, `FIRM_ADDR_W)-2], ext_mem_i_req[`write(0)]}),
       .i_resp               (ext_mem_i_resp),
@@ -276,7 +276,7 @@ module system
       .axi_wvalid(m_axi_wvalid), 
       .axi_wready(m_axi_wready), 
       //write response
-      //.axi_bid(m_axi_bid), 
+      .axi_bid(m_axi_bid),
       .axi_bresp(m_axi_bresp), 
       .axi_bvalid(m_axi_bvalid), 
       .axi_bready(m_axi_bready), 
@@ -293,7 +293,7 @@ module system
       .axi_arvalid(m_axi_arvalid), 
       .axi_arready(m_axi_arready), 
       //read 
-      //.axi_rid(m_axi_rid), 
+      .axi_rid(m_axi_rid),
       .axi_rdata(m_axi_rdata), 
       .axi_rresp(m_axi_rresp), 
       .axi_rlast(m_axi_rlast), 
