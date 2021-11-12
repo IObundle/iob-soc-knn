@@ -31,7 +31,7 @@ INIT_MEM ?=1
 #must match respective submodule or folder name in the submodules directory
 #and CORE_NAME in the core.mk file of the submodule
 #PERIPHERALS:=UART
-PERIPHERALS ?=UART KNN TIMER
+PERIPHERALS ?=UART TIMER
 
 #RISC-V COMPRESSED INSTRUCTIONS
 USE_COMPRESSED ?=1
@@ -100,7 +100,7 @@ INTERCON_DIR=$(UART_DIR)/submodules/INTERCON
 
 #submodule paths
 SUBMODULES_DIR:=$(ROOT_DIR)/submodules
-SUBMODULES=CPU CACHE $(PERIPHERALS)
+SUBMODULES=CPU CACHE KNN $(PERIPHERALS)
 $(foreach p, $(SUBMODULES), $(eval $p_DIR:=$(SUBMODULES_DIR)/$p))
 
 #define macros
