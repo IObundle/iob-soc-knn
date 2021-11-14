@@ -2,7 +2,7 @@ ROOT_DIR=../..
 include ../software.mk
 
 #additional compiler flags
-CFLAGS+=--specs=nano.specs -Wl,-Bstatic,-T,../template.lds,-Map,firmware.map,--strip-debug
+CFLAGS+=--specs=nosys.specs -Wl,-Bstatic,-T,../template.lds,-Map,firmware.map,--strip-debug
 
 
 #SUBMODULES
@@ -15,11 +15,13 @@ endif
 #peripherals (embedded)
 $(foreach p, $(PERIPHERALS), $(eval include $(SUBMODULES_DIR)/$p/software/embedded/embedded.mk))
 
+include $(KNN_DIR)/software/software.mk
+
 #HEADERS
 HDR+=periphs.h
 
 #SOURCES
-SRC+= firmware.S $(UART_DIR)/software/printf.c
+SRC+= firmware.S firmware.c $(UART_DIR)/software/printf.c
 
 #RULES
 firmware.elf: ../template.lds $(HDR) $(SRC)
