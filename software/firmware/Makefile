@@ -15,13 +15,18 @@ endif
 #peripherals (embedded)
 $(foreach p, $(PERIPHERALS), $(eval include $(SUBMODULES_DIR)/$p/software/embedded/embedded.mk))
 
-include $(KNN_DIR)/software/software.mk
+#define
+ifeq ($(DEBUG),1)
+DEFINE+=-DDEBUG
+endif
 
 #HEADERS
-HDR+=periphs.h
+HDR+=periphs.h \
+*.h
 
 #SOURCES
-SRC+= firmware.S firmware.c $(UART_DIR)/software/printf.c
+SRC+= firmware.S $(UART_DIR)/software/printf.c \
+*.c
 
 #RULES
 firmware.elf: ../template.lds $(HDR) $(SRC)

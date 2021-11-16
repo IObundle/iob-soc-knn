@@ -6,7 +6,7 @@
 #include "iob_timer.h"
 #include "printf.h"
 
-#include "iob-knn.h"
+#include "iob-knn-sw.h"
 
 int main()
 {
