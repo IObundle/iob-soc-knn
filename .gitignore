@@ -12,7 +12,9 @@ software/*/*
 !software/bootloader/boot.c
 !software/bootloader/boot.S
 
-!software/firmware/firmware.c
+
+!software/firmware/*.h
+!software/firmware/*.c
 !software/firmware/firmware.S
 
 !software/console/console.c
