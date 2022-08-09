@@ -1,75 +1,130 @@
-ROOT_DIR:=.
-include ./system.mk
+SHELL = /bin/bash
+export 
+
+#run on external memory implies DDR use
+ifeq ($(RUN_EXTMEM),1)
+USE_DDR=1
+endif
+
 
 #
-# SIMULATE RTL
+# BUILD EMBEDDED SOFTWARE
 #
+SW_DIR:=./software
+FIRM_DIR:=$(SW_DIR)/firmware
 
-sim:
-	make -C $(SIM_DIR) all
+#default baud and frequency if not given
+BAUD ?=$(SIM_BAUD)
+FREQ ?=$(SIM_FREQ)
 
-sim-test:
-	make -C $(SIM_DIR) test
+fw-build:
+	make -C $(FIRM_DIR) build-all
 
+fw-clean:
+	make -C $(FIRM_DIR) clean-all
 
-sim-clean:
-	make -C $(SIM_DIR) clean clean-testlog
+fw-debug:
+	make -C $(FIRM_DIR) debug
 
 #
 # EMULATE ON PC
 #
 
-pc-emul:
-	make -C $(PC_DIR) all
+PC_DIR:=$(SW_DIR)/pc-emul
+pc-emul-build:
+	make fw-build
+	make -C $(PC_DIR)
 
-pc-emul-test:
+pc-emul-run: pc-emul-build
+	make -C $(PC_DIR) run
+
+pc-emul-clean: fw-clean
+	make -C $(PC_DIR) clean
+
+pc-emul-test: pc-emul-clean
 	make -C $(PC_DIR) test
 
-pc-emul-clean:
-	make -C $(PC_DIR) clean
+
+HW_DIR=./hardware
+#
+# SIMULATE RTL
+#
+#default simulator running locally or remotely
+SIMULATOR ?=icarus
+SIM_DIR=$(HW_DIR)/simulation/$(SIMULATOR)
+#default baud and system clock frequency
+SIM_BAUD = 2500000
+SIM_FREQ =50000000
+sim-build:
+	make fw-build
+	make -C $(SIM_DIR) build
+
+sim-run: sim-build
+	make -C $(SIM_DIR) run
+
+sim-clean: fw-clean
+	make -C $(SIM_DIR) clean
+
+sim-test:
+	make -C $(SIM_DIR) test
+
+sim-debug:
+	make -C $(SIM_DIR) debug
 
 #
 # BUILD, LOAD AND RUN ON FPGA BOARD
 #
+#default board running locally or remotely
+BOARD ?=CYCLONEV-GT-DK
+BOARD_DIR =$(shell find hardware -name $(BOARD))
+#default baud and system clock freq for boards
+BOARD_BAUD = 115200
+#default board frequency
+BOARD_FREQ ?=100000000
+ifeq ($(BOARD), CYCLONEV-GT-DK)
+BOARD_FREQ =50000000
+endif
 
 fpga-build:
+	make fw-build BAUD=$(BOARD_BAUD) FREQ=$(BOARD_FREQ)
 	make -C $(BOARD_DIR) build
 
-fpga-run:
-	make -C $(BOARD_DIR) all TEST_LOG="$(TEST_LOG)"
+fpga-run: fpga-build
+	make -C $(BOARD_DIR) run TEST_LOG="$(TEST_LOG)"
+
+fpga-clean: fw-clean
+	make -C $(BOARD_DIR) clean
+
+fpga-veryclean:
+	make -C $(BOARD_DIR) veryclean
+
+fpga-debug:
+	make -C $(BOARD_DIR) debug
 
 fpga-test:
 	make -C $(BOARD_DIR) test
 
-fpga-clean:
-	make -C $(BOARD_DIR) clean clean-testlog
-
-
-#
-# SYNTHESIZE AND SIMULATE ASIC
-#
-
-asic-synt:
-	make -C $(ASIC_DIR) all
-
-asic-sim-post-synt:
-	make -C $(ASIC_DIR) all
-
 #
 # COMPILE DOCUMENTS
 #
+DOC_DIR=document/$(DOC)
 doc-build:
-	make -C $(DOC_DIR) all
-
-doc-test:
-	make -C $(DOC_DIR) test
+	make -C $(DOC_DIR) $(DOC).pdf
 
 doc-clean:
 	make -C $(DOC_DIR) clean
 
+doc-test:
+	make -C $(DOC_DIR) test
 
 #
-# TEST ON SIMULATORS AND BOARDS
+# CLEAN
+#
+
+clean: pc-emul-clean sim-clean fpga-clean doc-clean
+
+#
+# TEST ALL PLATFORMS
 #
 
 test-pc-emul: pc-emul-test
@@ -77,11 +132,11 @@ test-pc-emul: pc-emul-test
 test-pc-emul-clean: pc-emul-clean
 
 test-sim:
-	make sim-test SIMULATOR=xcelium
+	make sim-test SIMULATOR=verilator
 	make sim-test SIMULATOR=icarus
 
 test-sim-clean:
-	make sim-clean SIMULATOR=xcelium
+	make sim-clean SIMULATOR=verilator
 	make sim-clean SIMULATOR=icarus
 
 test-fpga:
@@ -93,6 +148,10 @@ test-fpga-clean:
 	make fpga-clean BOARD=AES-KU040-DB-G
 
 test-doc:
+	make fpga-clean BOARD=CYCLONEV-GT-DK
+	make fpga-clean BOARD=AES-KU040-DB-G
+	make fpga-build BOARD=CYCLONEV-GT-DK
+	make fpga-build BOARD=AES-KU040-DB-G
 	make doc-test DOC=pb
 	make doc-test DOC=presentation
 
@@ -104,25 +163,20 @@ test: test-clean test-pc-emul test-sim test-fpga test-doc
 
 test-clean: test-pc-emul-clean test-sim-clean test-fpga-clean test-doc-clean
 
-
-#generic clean 
-clean: 
-	make pc-emul-clean
-	make sim-clean
-	make fpga-clean
-	make doc-clean
-
-clean-all: test-clean
+debug:
+	@echo $(UART_DIR)
+	@echo $(CACHE_DIR)
 
 
-.PHONY: pc-emul pc-emul-test pc-emul-clean \
-	sim sim-test sim-clean\
-	fpga-build fpga-run fpga-test fpga-clean\
-	asic-synt asic-sim-post-synt\
-	doc-build doc-test  doc-clean clean\
-	test-pc-emul test-pc-emul-clean\
-	test-sim test-sim-clean\
-	test-fpga test-fpga-clean\
-	test-doc test-doc-clean\
-	test test-clean
-	clean clean-all
+.PHONY: fw-build fw-clean fw-debug\
+	pc-emul-build pc-emul-run pc-emul-clean pc-emul-test \
+	sim-build sim-run sim-clean sim-test \
+	fpga-build fpga-run fpga-clean fpga-test \
+	doc-build doc-clean doc-test \
+	clean \
+	test-pc-emul test-pc-emul-clean \
+	test-sim test-sim-clean \
+	test-fpga test-fpga-clean \
+	test-doc test-doc-clean \
+	test test-clean \
+	debug
