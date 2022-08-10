@@ -90,6 +90,8 @@ endif
 PICORV32_DIR=$(ROOT_DIR)/submodules/PICORV32
 CACHE_DIR=$(ROOT_DIR)/submodules/CACHE
 UART_DIR=$(ROOT_DIR)/submodules/UART
+TIMER_DIR=$(ROOT_DIR)/submodules/TIMER
+KNN_DIR=$(ROOT_DIR)/submodules/KNN
 LIB_DIR=$(ROOT_DIR)/submodules/LIB
 MEM_DIR=$(ROOT_DIR)/submodules/MEM
 AXI_DIR=$(ROOT_DIR)/submodules/AXI
