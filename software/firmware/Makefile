@@ -1,9 +1,6 @@
 ROOT_DIR=../..
 include ../software.mk
 
-#additional compiler flags
-CFLAGS+=--specs=nosys.specs -Wl,-Bstatic,-T,../template.lds,-Map,firmware.map,--strip-debug
-
 #additional linker flag
 LFLAGS+=-Wl,-Map,firmware.map
 
@@ -15,18 +12,14 @@ endif
 #uart
 include $(UART_DIR)/software/embedded/embedded.mk
 
-#define
-ifeq ($(DEBUG),1)
-DEFINE+=-DDEBUG
-endif
+#timer
+include $(TIMER_DIR)/software/embedded/embedded.mk
 
 #HEADERS
-HDR+=periphs.h \
-*.h
+HDR+=periphs.h
 
 #SOURCES
-SRC+= firmware.S $(UART_DIR)/software/printf.c \
-*.c
+SRC+= firmware.S firmware.c $(UART_DIR)/software/printf.c
 
 #RULES
 
