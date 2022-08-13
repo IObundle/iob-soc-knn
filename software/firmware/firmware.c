@@ -3,7 +3,7 @@
 #include "system.h"
 #include "periphs.h"
 #include "iob-uart.h"
-#include "iob_timer.h"
+#include "iob-timer.h"
 #include "printf.h"
 
 #include "iob-knn-sw.h"
@@ -19,7 +19,7 @@ int main()
   uart_puts("\n\n\nHello world!\n\n\n");
   printf("Value of Pi = %f\n\n", 3.1415);
 
-  knn();
+ //knn();
 
   uart_finish();
 }
