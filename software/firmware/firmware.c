@@ -19,7 +19,7 @@ int main()
   uart_puts("\n\n\nHello world!\n\n\n");
   printf("Value of Pi = %f\n\n", 3.1415);
 
- //knn();
+  knn();
 
   uart_finish();
 }
