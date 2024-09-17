@@ -19,7 +19,7 @@ include $(TIMER_DIR)/software/embedded/embedded.mk
 HDR+=periphs.h
 
 #SOURCES
-SRC+= firmware.S firmware.c $(UART_DIR)/software/printf.c
+SRC+= firmware.S firmware.c iob-knn-sw.c $(UART_DIR)/software/printf.c
 
 #RULES
 
